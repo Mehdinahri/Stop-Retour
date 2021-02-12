@@ -1,0 +1,242 @@
+<?php
+
+
+
+namespace App\Http\Controllers;
+
+
+
+use Illuminate\Support\Facades\Auth;
+
+use App\Models\Ticket;
+
+use App\Models\User;
+
+use Illuminate\Http\Request;
+
+use App\Mail\TicketForm;
+
+use Mail;
+
+
+
+class TicketController extends Controller
+
+{
+
+    /**
+
+     * Display a listing of the resource.
+
+     *
+
+     * @return \Illuminate\Http\Response
+
+     */ 
+
+    //active pack
+
+    // public function indexClient()
+
+    // {
+
+    //     return Pack::where("active",1)->get();
+
+    // }
+
+   
+
+    public function index()
+
+    {
+
+        return view('ticket.index', ['tickets' => Ticket::cursor()]);
+
+    }
+
+
+
+    /**
+
+     * Show the form for creating a new resource.
+
+     *
+
+     * @return \Illuminate\Http\Response
+
+     */
+
+    public function create()
+
+    {
+
+        $user = Auth::user();
+
+        return view('ticket.add', ['user' => $user]);
+
+    }
+
+
+
+    /**
+
+     * Store a newly created resource in storage.
+
+     *
+
+     * @param  \Illuminate\Http\Request  $request
+
+     * @return \Illuminate\Http\Response
+
+     */
+
+    public function store(Request $request)
+
+    {
+
+
+
+    }
+
+    public function store2(Request $request)
+
+    {
+
+        $request->validate([
+
+            'objet'=>"bail|required|max:100|min:10",
+
+            'message'=>"required"
+
+        ]);
+
+        $ticket = new Ticket();
+
+        $ticket->objet = $request->objet;
+
+        $ticket->message = $request->message;
+
+        $ticket->departement = 'Contact Client';
+
+        $ticket->priorite = 'Moyenne';
+
+        $ticket->user_id = $request->user_id;
+
+        $ticket->save();
+
+        Mail::to(User::find($request->user_id)->email)->send(new TicketForm($ticket));
+
+        return back()->with('success', 'Votre requête a été envoyée avec succès!');
+
+    }
+
+
+
+    /**
+
+     * Display the specified resource.
+
+     *
+
+     * @param  \App\Models\Pack  $pack
+
+     * @return \Illuminate\Http\Response
+
+     */
+
+    public function show(Ticket $ticket)
+
+    {
+
+        $ticket->user = $ticket->user;
+
+        $ticket->reponses = $ticket->reponses;
+
+        return view('ticket.show', ['ticket' => $ticket]);
+
+    }
+
+
+
+    /**
+
+     * Show the form for editing the specified resource.
+
+     *
+
+     * @param  \App\Models\Pack  $pack
+
+     * @return \Illuminate\Http\Response
+
+     */
+
+    public function edit(Ticket $ticket)
+
+    {
+
+        
+
+    }
+
+    public function contact(User $user )
+
+    {
+
+        return view('ticket.add', ['user' => $user]);
+
+    }
+
+
+
+    /**
+
+     * Update the specified resource in storage.
+
+     *
+
+     * @param  \Illuminate\Http\Request  $request
+
+     * @param  \App\Models\Pack  $pack
+
+     * @return \Illuminate\Http\Response
+
+     */
+
+    public function update(Request $request, Ticket $ticket)
+
+    {
+
+        $ticket->etat = 1;
+
+        $ticket->save();
+
+        return back()->with('success2', 'Ticket a été fermé!');
+
+    }
+
+
+
+    /**
+
+     * Remove the specified resource from storage.
+
+     *
+
+     * @param  \App\Models\Pack  $pack
+
+     * @return \Illuminate\Http\Response
+
+     */
+
+    public function destroy(Pack $pack)
+
+    {
+
+
+
+
+
+    }
+
+}
+
